@@ -12,7 +12,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
 import { RootStackParamList } from '../types/navigation';
 import { useAuth, useMessages, useSocket } from '../hooks';
-import { Chats, TypingIndicator } from '../components';
+import { Chats } from '../components';
 import MessageInput from '../components/MessageInput';
 
 
@@ -58,7 +58,7 @@ const WelcomeScreen: React.FC<Props> = ({ navigation, route }) => {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-          <Text style={styles.logoutButtonText}>{isLoading && <ActivityIndicator animating={true} color="#fff" size={25} style={{ marginRight: 8 }} />}⏻</Text>
+          <Text style={styles.logoutButtonText}>{isLoading ? <ActivityIndicator animating={true} color="#fff" size={25} style={{ marginRight: 8 }} /> : '⏻'}</Text>
         </TouchableOpacity>
       </View>
       {isConnecting && <View style={{ position: 'absolute', top: 0, width: '100%', alignItems: 'center', paddingVertical: 4, backgroundColor: 'red' }}>
@@ -70,14 +70,7 @@ const WelcomeScreen: React.FC<Props> = ({ navigation, route }) => {
           >
         {/* <UsersList /> */}
         <Chats />
-        <TypingIndicator />
         <MessageInput />
-        {/* <View style={styles.actionSection}>
-          <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-            {isLoading && <ActivityIndicator animating={true} color="#fff" size={25} style={{ marginRight: 8 }} />}
-            <Text style={styles.logoutButtonText}>Logout</Text>
-          </TouchableOpacity>
-        </View> */}
       </KeyboardAvoidingView>
     </SafeAreaView>
   );

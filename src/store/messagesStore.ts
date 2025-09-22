@@ -25,9 +25,7 @@ interface MessagesActions {
   addTypingUser: (userId: string, chatRoomId?: string) => void;
   removeTypingUser: (userId: string, chatRoomId?: string) => void;
   clearTyping: () => void;
-  
-  // Test and utility functions
-  addTestMessage: () => void;
+
   sendMessage: (messageData: SendMessageRequest) => void;
   
   // Socket event handlers
@@ -140,23 +138,6 @@ export const useMessagesStore = create<MessagesStore>((set, get) => ({
   clearTyping: () => set({ typing: [] }),
 
   /**
-   * Add a test message for development
-   */
-  addTestMessage: () => {
-    const testMessage: Message = {
-      id: `test-${Date.now()}`,
-      text: `Test message at ${new Date().toLocaleTimeString()}`,
-      senderId: 'test-user-1',
-      timestamp: new Date().toISOString(),
-      messageType: 'text',
-      isRead: false,
-      senderName: 'Test User',
-    };
-    console.log('Adding test message:', testMessage);
-    get().addMessage(testMessage);
-  },
-
-  /**
    * Send a message via socket
    */
   sendMessage: (messageData) => {
@@ -177,7 +158,7 @@ export const useMessagesStore = create<MessagesStore>((set, get) => ({
         senderId: messageData.senderId, 
         // receiverId: messageData.receiverId,
         chatRoomId: messageData.chatRoomId,
-        timestamp: new Date().toISOString(),
+        timestamp: Date.now(),
         messageType: messageData.messageType || 'text',
         isRead: false,
         senderName: 'You',

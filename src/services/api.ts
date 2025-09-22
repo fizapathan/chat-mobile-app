@@ -4,8 +4,8 @@ import * as SecureStore from 'expo-secure-store';
 
 // API Configuration
 export const API_CONFIG = {
-  BASE_URL: 'http://localhost:4000', // 'https://chat-server-omn9.onrender.com/',
-  SOCKET_URL: 'http://localhost:4000', // 'https://chat-server-omn9.onrender.com/',
+  BASE_URL: 'https://chat-server-omn9.onrender.com/',
+  SOCKET_URL: 'https://chat-server-omn9.onrender.com/',
   TIMEOUT: 10000,
   STORAGE_KEYS: {
     AUTH_TOKEN: 'auth_token',

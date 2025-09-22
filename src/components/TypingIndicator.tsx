@@ -2,9 +2,9 @@ import { StyleSheet, Text, View } from "react-native";
 import { useTyping } from "../hooks";
 import { memo } from "react";
 
-const TypingIndicator = () => {
-  const { typingUsers } = useTyping();
-
+const TypingIndicator = ({typingUsers}: {typingUsers: string[]}) => {
+  // const { typingUsers } = useTyping();
+console.log("typing..", typingUsers)
   return (
     <>
       {typingUsers.length > 0 && (
@@ -26,11 +26,9 @@ const TypingIndicator = () => {
 const styles = StyleSheet.create({
 
   typingIndicator: {
-    paddingHorizontal: 16,
     paddingVertical: 8,
     backgroundColor: '#f0f0f0',
     borderRadius: 8,
-    marginHorizontal: 16,
     marginBottom: 8,
   },
   typingText: {
@@ -40,4 +38,8 @@ const styles = StyleSheet.create({
   },
 })
 
-export default memo(TypingIndicator);
+const areEqual = (prev: { typingUsers: string[] }, next: { typingUsers: string[] }) => {
+  return JSON.stringify(prev.typingUsers) === JSON.stringify(next.typingUsers);
+}
+
+export default memo(TypingIndicator, areEqual);

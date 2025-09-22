@@ -8,7 +8,6 @@ export const useMessages = () => {
   const error = useMessagesStore((state) => state.error);
   
   const addMessage = useMessagesStore((state) => state.addMessage);
-  const addTestMessage = useMessagesStore((state) => state.addTestMessage);
   const clearMessages = useMessagesStore((state) => state.clearMessages);
   const sendMessage = useMessagesStore((state) => state.sendMessage);
   const markMessageAsRead = useMessagesStore((state) => state.markMessageAsRead);
@@ -19,7 +18,6 @@ export const useMessages = () => {
     isLoading,
     error,
     addMessage,
-    addTestMessage,
     clearMessages,
     sendMessage,
     markMessageAsRead,

@@ -38,7 +38,7 @@ export interface Message {
   senderId: string;
   receiverId?: string;
   chatRoomId?: string;
-  timestamp: string;
+  timestamp: number;
   messageType: 'text' | 'image' | 'file';
   isRead: boolean;
   senderName?: string;

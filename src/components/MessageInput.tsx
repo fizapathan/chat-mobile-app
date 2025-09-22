@@ -2,12 +2,13 @@ import React from "react";
 import { memo } from "react"
 import { Text, View, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform } from "react-native"
 import { useAuth, useMessages, useTyping } from "../hooks";
+import TypingIndicator from "./TypingIndicator";
 
 const MessageInput = () => {
   const [messageText, setMessageText] = React.useState('');
   const { sendMessage } = useMessages();
   const { user } = useAuth();
-  const { startTyping, stopTyping } = useTyping();
+  const { typingUsers, startTyping, stopTyping } = useTyping();
 
   const send = () => {
     if (!messageText.trim() || !user) {
@@ -39,6 +40,8 @@ const MessageInput = () => {
   };
 
   return (
+    <>
+    <TypingIndicator typingUsers={typingUsers} />
     <View style={{ flexDirection: 'row' }}>
       <TextInput
         style={styles.input}
@@ -54,6 +57,7 @@ const MessageInput = () => {
         <Text style={[{ color: 'blue' }]}>Send</Text>
       </TouchableOpacity>
     </View>
+    </>
   )
 }
 
