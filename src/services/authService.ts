@@ -1,4 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as SecureStore from 'expo-secure-store';
 import { apiClient, API_CONFIG, handleApiResponse, handleApiError } from './api';
 import {
   LoginRequest,
@@ -68,7 +69,7 @@ export class AuthService {
    */
   static async refreshToken(): Promise<AuthResponse> {
     try {
-      const refreshToken = await AsyncStorage.getItem(API_CONFIG.STORAGE_KEYS.REFRESH_TOKEN);
+      const refreshToken = await SecureStore.getItemAsync(API_CONFIG.STORAGE_KEYS.REFRESH_TOKEN);
       
       if (!refreshToken) {
         throw new Error('No refresh token available');
@@ -128,7 +129,7 @@ export class AuthService {
    */
   static async isAuthenticated(): Promise<boolean> {
     try {
-      const token = await AsyncStorage.getItem(API_CONFIG.STORAGE_KEYS.AUTH_TOKEN);
+      const token = await SecureStore.getItemAsync(API_CONFIG.STORAGE_KEYS.AUTH_TOKEN);
       return !!token;
     } catch (error) {
       return false;
@@ -152,7 +153,7 @@ export class AuthService {
    */
   static async getStoredToken(): Promise<string | null> {
     try {
-      return await AsyncStorage.getItem(API_CONFIG.STORAGE_KEYS.AUTH_TOKEN);
+      return await SecureStore.getItemAsync(API_CONFIG.STORAGE_KEYS.AUTH_TOKEN);
     } catch (error) {
       return null;
     }
@@ -163,10 +164,11 @@ export class AuthService {
    */
   private static async storeAuthData(authData: AuthResponse): Promise<void> {
     try {
-      await AsyncStorage.multiSet([
-        [API_CONFIG.STORAGE_KEYS.AUTH_TOKEN, authData.token],
-        [API_CONFIG.STORAGE_KEYS.REFRESH_TOKEN, authData.refreshToken],
-        [API_CONFIG.STORAGE_KEYS.USER_DATA, JSON.stringify(authData.user)],
+      // Store tokens securely
+      await Promise.all([
+        SecureStore.setItemAsync(API_CONFIG.STORAGE_KEYS.AUTH_TOKEN, authData.token),
+        SecureStore.setItemAsync(API_CONFIG.STORAGE_KEYS.REFRESH_TOKEN, authData.refreshToken),
+        AsyncStorage.setItem(API_CONFIG.STORAGE_KEYS.USER_DATA, JSON.stringify(authData.user)),
       ]);
     } catch (error) {
       console.error('Failed to store auth data:', error);
@@ -180,10 +182,10 @@ export class AuthService {
   private static async clearAuthData(): Promise<void> {
     try {
       console.log('Clearing authentication data from storage');
-      await AsyncStorage.multiRemove([
-        API_CONFIG.STORAGE_KEYS.AUTH_TOKEN,
-        API_CONFIG.STORAGE_KEYS.REFRESH_TOKEN,
-        API_CONFIG.STORAGE_KEYS.USER_DATA,
+      await Promise.all([
+        SecureStore.deleteItemAsync(API_CONFIG.STORAGE_KEYS.AUTH_TOKEN),
+        SecureStore.deleteItemAsync(API_CONFIG.STORAGE_KEYS.REFRESH_TOKEN),
+        AsyncStorage.removeItem(API_CONFIG.STORAGE_KEYS.USER_DATA),
       ]);
     } catch (error) {
       console.error('Failed to clear auth data:', error);

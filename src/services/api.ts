@@ -1,5 +1,6 @@
 import axios, { AxiosInstance, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as SecureStore from 'expo-secure-store';
 
 // API Configuration
 export const API_CONFIG = {
@@ -27,7 +28,7 @@ const createApiInstance = (): AxiosInstance => {
   instance.interceptors.request.use(
     async (config: InternalAxiosRequestConfig) => {
       try {
-        const token = await AsyncStorage.getItem(API_CONFIG.STORAGE_KEYS.AUTH_TOKEN);
+        const token = await SecureStore.getItemAsync(API_CONFIG.STORAGE_KEYS.AUTH_TOKEN);
         if (token && config.headers) {
           config.headers.Authorization = `Bearer ${token}`;
         }
@@ -49,10 +50,10 @@ const createApiInstance = (): AxiosInstance => {
     async (error) => {
       if (error.response?.status === 401) {
         // Token expired or invalid - clear storage and redirect to login
-        await AsyncStorage.multiRemove([
-          API_CONFIG.STORAGE_KEYS.AUTH_TOKEN,
-          API_CONFIG.STORAGE_KEYS.USER_DATA,
-          API_CONFIG.STORAGE_KEYS.REFRESH_TOKEN,
+        await Promise.all([
+          SecureStore.deleteItemAsync(API_CONFIG.STORAGE_KEYS.AUTH_TOKEN),
+          SecureStore.deleteItemAsync(API_CONFIG.STORAGE_KEYS.REFRESH_TOKEN),
+          AsyncStorage.removeItem(API_CONFIG.STORAGE_KEYS.USER_DATA),
         ]);
       }
       return Promise.reject(error);
