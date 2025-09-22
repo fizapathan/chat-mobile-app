@@ -5,6 +5,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   StyleSheet,
+  ScrollView,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -61,7 +62,7 @@ const SignupScreen: React.FC<Props> = ({ navigation }) => {
       return;
     }
 
-    signup({name, email: email.trim(), password})
+    signup({ name, email: email.trim(), password })
       .catch((error) => {
         Alert.alert('Error', error.message);
       });;
@@ -73,61 +74,63 @@ const SignupScreen: React.FC<Props> = ({ navigation }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <KeyboardAvoidingView style={styles.content} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-        <ThemedText variant="heading1" style={styles.title}>Create Account</ThemedText>
-        <ThemedText variant="body" color="textSecondary" style={styles.subtitle}>Sign up to get started</ThemedText>
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+        <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+          <ThemedText variant="heading1" style={styles.title}>Create Account</ThemedText>
+          <ThemedText variant="body" color="textSecondary" style={styles.subtitle}>Sign up to get started</ThemedText>
 
-        <View style={styles.form}>
-          <ThemedTextInput
-            placeholder="Name"
-            value={name}
-            onChangeText={setName}
-            autoCapitalize="words"
-            autoCorrect={false}
-            maxLength={25}
-          />
-
-          <ThemedTextInput
-            placeholder="Email"
-            value={email}
-            onChangeText={setEmail}
-            autoCapitalize="none"
-            autoCorrect={false}
-            keyboardType="email-address"
-            maxLength={25}
-          />
-
-          <ThemedTextInput
-            placeholder="Password"
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-            autoCapitalize="none"
-            autoCorrect={false}
-            maxLength={35}
-            showPasswordToggle
-          />
-
-          <ThemedButton
-            title="Sign Up"
-            variant="accent"
-            onPress={handleSignup}
-            loading={isLoading}
-            fullWidth
-            style={styles.signupButton}
-          />
-
-          <View style={styles.loginContainer}>
-            <ThemedText variant="body" color="textSecondary">Already have an account? </ThemedText>
-            <ThemedButton
-              title="Sign in"
-              variant="outline"
-              size="small"
-              onPress={navigateToLogin}
-              style={styles.loginButton}
+          <View style={styles.form}>
+            <ThemedTextInput
+              placeholder="Name"
+              value={name}
+              onChangeText={setName}
+              autoCapitalize="words"
+              autoCorrect={false}
+              maxLength={25}
             />
+
+            <ThemedTextInput
+              placeholder="Email"
+              value={email}
+              onChangeText={setEmail}
+              autoCapitalize="none"
+              autoCorrect={false}
+              keyboardType="email-address"
+              maxLength={25}
+            />
+
+            <ThemedTextInput
+              placeholder="Password"
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry
+              autoCapitalize="none"
+              autoCorrect={false}
+              maxLength={35}
+              showPasswordToggle
+            />
+
+            <ThemedButton
+              title="Sign Up"
+              variant="accent"
+              onPress={handleSignup}
+              loading={isLoading}
+              fullWidth
+              style={styles.signupButton}
+            />
+
+            <View style={styles.loginContainer}>
+              <ThemedText variant="body" color="textSecondary">Already have an account? </ThemedText>
+              <ThemedButton
+                title="Sign in"
+                variant="outline"
+                size="small"
+                onPress={navigateToLogin}
+                style={styles.loginButton}
+              />
+            </View>
           </View>
-        </View>
+        </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );

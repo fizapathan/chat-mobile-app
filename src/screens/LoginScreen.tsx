@@ -5,6 +5,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   StyleSheet,
+  ScrollView,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -47,7 +48,7 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
       Alert.alert('Error', 'Please enter a valid email address');
       return;
     }
-    
+
     console.log('Attempting login with email:', email);
     // Call the login function from the useAuth hook
     login({ email, password })
@@ -62,52 +63,54 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <KeyboardAvoidingView style={styles.content} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-        <ThemedText variant="heading1" style={styles.title}>Welcome Back</ThemedText>
-        <ThemedText variant="body" color="textSecondary" style={styles.subtitle}>Sign in to your account</ThemedText>
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+        <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+          <ThemedText variant="heading1" style={styles.title}>Welcome Back</ThemedText>
+          <ThemedText variant="body" color="textSecondary" style={styles.subtitle}>Sign in to your account</ThemedText>
 
-        <View style={styles.form}>
-          <ThemedTextInput
-            placeholder="Email"
-            value={email}
-            onChangeText={setEmail}
-            autoCapitalize="none"
-            autoCorrect={false}
-            keyboardType="email-address"
-            maxLength={25}
-          />
-
-          <ThemedTextInput
-            placeholder="Password"
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-            autoCapitalize="none"
-            autoCorrect={false}
-            showPasswordToggle
-            maxLength={35}
-          />
-
-          <ThemedButton
-            title="Login"
-            variant="ocean"
-            onPress={handleLogin}
-            loading={isLoading}
-            fullWidth
-            style={styles.loginButton}
-          />
-
-          <View style={styles.signupContainer}>
-            <ThemedText variant="body" color="textSecondary">Don't have an account? </ThemedText>
-            <ThemedButton
-              title="Sign up"
-              variant="outline"
-              size="small"
-              onPress={navigateToSignup}
-              style={styles.signupButton}
+          <View style={styles.form}>
+            <ThemedTextInput
+              placeholder="Email"
+              value={email}
+              onChangeText={setEmail}
+              autoCapitalize="none"
+              autoCorrect={false}
+              keyboardType="email-address"
+              maxLength={25}
             />
+
+            <ThemedTextInput
+              placeholder="Password"
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry
+              autoCapitalize="none"
+              autoCorrect={false}
+              showPasswordToggle
+              maxLength={35}
+            />
+
+            <ThemedButton
+              title="Login"
+              variant="ocean"
+              onPress={handleLogin}
+              loading={isLoading}
+              fullWidth
+              style={styles.loginButton}
+            />
+
+            <View style={styles.signupContainer}>
+              <ThemedText variant="body" color="textSecondary">Don't have an account? </ThemedText>
+              <ThemedButton
+                title="Sign up"
+                variant="outline"
+                size="small"
+                onPress={navigateToSignup}
+                style={styles.signupButton}
+              />
+            </View>
           </View>
-        </View>
+        </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
