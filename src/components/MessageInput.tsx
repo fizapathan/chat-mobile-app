@@ -1,8 +1,10 @@
 import React from "react";
 import { memo } from "react"
-import { Text, View, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform } from "react-native"
+import { View, StyleSheet } from "react-native"
 import { useAuth, useMessages, useTyping } from "../hooks";
 import TypingIndicator from "./TypingIndicator";
+import { ThemedTextInput, ThemedButton } from "./common";
+import { theme } from "../styles/theme";
 
 const MessageInput = () => {
   const [messageText, setMessageText] = React.useState('');
@@ -42,35 +44,47 @@ const MessageInput = () => {
   return (
     <>
     <TypingIndicator typingUsers={typingUsers} />
-    <View style={{ flexDirection: 'row' }}>
-      <TextInput
+    <View style={styles.container}>
+      <ThemedTextInput
         style={styles.input}
         placeholder="Type a message..."
-        placeholderTextColor="#999"
         value={messageText}
         onChangeText={handleTextChange}
         onBlur={handleBlur}
         autoCapitalize="none"
         autoCorrect={false}
+        multiline
       />
-      <TouchableOpacity style={{ marginLeft: 8, paddingHorizontal: 12, justifyContent: 'center' }} onPress={send}>
-        <Text style={[{ color: 'blue' }]}>Send</Text>
-      </TouchableOpacity>
+      <ThemedButton
+        title="➤"
+        variant="primary"
+        size="small"
+        onPress={send}
+        style={styles.sendButton}
+      />
     </View>
     </>
   )
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    paddingHorizontal: theme.spacing.md,
+    paddingVertical: theme.spacing.sm,
+    backgroundColor: theme.colors.surface,
+    ...theme.shadows.sm,
+  },
   input: {
     flex: 1,
-    height: 50,
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    paddingHorizontal: 16,
-    fontSize: 16,
-    backgroundColor: '#f9f9f9',
+    maxHeight: 100,
+    marginBottom: 0,
+  },
+  sendButton: {
+    marginLeft: theme.spacing.sm,
+    width: 45,
+    height: 45,
   },
 })
 

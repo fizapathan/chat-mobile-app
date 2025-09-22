@@ -1,19 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import {
-  ActivityIndicator,
   View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
   Alert,
   KeyboardAvoidingView,
   Platform,
-} from 'react-native';import { SafeAreaView } from 'react-native-safe-area-context';
+  StyleSheet,
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types/navigation';
 import { useAuth } from '../hooks/useAuth';
 import { validateEmail } from '../utils/validations';
+import { ThemedTextInput, ThemedButton, ThemedText } from '../components';
+import { theme } from '../styles/theme';
 
 type LoginScreenNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
@@ -64,24 +63,21 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView style={styles.content} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-        <Text style={styles.title}>Welcome Back</Text>
-        <Text style={styles.subtitle}>Sign in to your account</Text>
+        <ThemedText variant="heading1" style={styles.title}>Welcome Back</ThemedText>
+        <ThemedText variant="body" color="textSecondary" style={styles.subtitle}>Sign in to your account</ThemedText>
 
         <View style={styles.form}>
-          <TextInput
-            style={styles.input}
-            placeholder="email"
-            placeholderTextColor="#999"
+          <ThemedTextInput
+            placeholder="Email"
             value={email}
             onChangeText={setEmail}
             autoCapitalize="none"
             autoCorrect={false}
+            keyboardType="email-address"
           />
 
-          <TextInput
-            style={styles.input}
+          <ThemedTextInput
             placeholder="Password"
-            placeholderTextColor="#999"
             value={password}
             onChangeText={setPassword}
             secureTextEntry
@@ -89,16 +85,23 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
             autoCorrect={false}
           />
 
-          <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
-            {isLoading && <ActivityIndicator animating={true} color="#fff" size={25} style={{ marginRight: 8 }} />}
-            <Text style={styles.loginButtonText}>Login</Text>
-          </TouchableOpacity>
+          <ThemedButton
+            title="Login"
+            onPress={handleLogin}
+            loading={isLoading}
+            fullWidth
+            style={styles.loginButton}
+          />
 
           <View style={styles.signupContainer}>
-            <Text style={styles.signupText}>Don't have an account? </Text>
-            <TouchableOpacity onPress={navigateToSignup}>
-              <Text style={styles.signupLink}>Sign up</Text>
-            </TouchableOpacity>
+            <ThemedText variant="body" color="textSecondary">Don't have an account? </ThemedText>
+            <ThemedButton
+              title="Sign up"
+              variant="outline"
+              size="small"
+              onPress={navigateToSignup}
+              style={styles.signupButton}
+            />
           </View>
         </View>
       </KeyboardAvoidingView>
@@ -109,66 +112,36 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: theme.colors.background,
   },
   content: {
     flex: 1,
-    padding: 20,
+    padding: theme.spacing.lg,
     justifyContent: 'center',
   },
   title: {
-    fontSize: 28,
-    fontWeight: 'bold',
     textAlign: 'center',
-    marginBottom: 8,
-    color: '#333',
+    marginBottom: theme.spacing.xs,
   },
   subtitle: {
-    fontSize: 16,
     textAlign: 'center',
-    color: '#666',
-    marginBottom: 40,
+    marginBottom: theme.spacing.xl,
   },
   form: {
     width: '100%',
   },
-  input: {
-    height: 50,
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    paddingHorizontal: 16,
-    marginBottom: 16,
-    fontSize: 16,
-    backgroundColor: '#f9f9f9',
-  },
   loginButton: {
-    backgroundColor: '#007AFF',
-    height: 50,
-    borderRadius: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 10,
-    flexDirection: 'row',
-  },
-  loginButtonText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: '600',
+    marginTop: theme.spacing.md,
   },
   signupContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginTop: 30,
+    alignItems: 'center',
+    marginTop: theme.spacing.xl,
   },
-  signupText: {
-    fontSize: 16,
-    color: '#666',
-  },
-  signupLink: {
-    fontSize: 16,
-    color: '#007AFF',
-    fontWeight: '600',
+  signupButton: {
+    marginLeft: theme.spacing.xs,
+    height: 30,
   },
 });
 

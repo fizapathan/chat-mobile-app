@@ -1,6 +1,7 @@
-import { StyleSheet, Text, View } from "react-native";
-import { useTyping } from "../hooks";
+import { StyleSheet, View } from "react-native";
 import { memo } from "react";
+import { ThemedText } from "./common";
+import { theme } from "../styles/theme";
 
 const TypingIndicator = ({typingUsers}: {typingUsers: string[]}) => {
   // const { typingUsers } = useTyping();
@@ -9,14 +10,14 @@ console.log("typing..", typingUsers)
     <>
       {typingUsers.length > 0 && (
         <View style={styles.typingIndicator}>
-          <Text style={styles.typingText}>
+          <ThemedText variant="caption" color="textSecondary" style={styles.typingText}>
             {typingUsers.length === 1
               ? `${typingUsers[0]} ${typingUsers[0] === 'You' ? 'are' : 'is'} typing...`
               : typingUsers.length === 2
                 ? `${typingUsers.join(' and ')} are typing...`
                 : `${typingUsers.slice(0, 2).join(', ')} and ${typingUsers.length - 2} others are typing...`
             }
-          </Text>
+          </ThemedText>
         </View>
       )}
     </>
@@ -24,16 +25,15 @@ console.log("typing..", typingUsers)
 }
 
 const styles = StyleSheet.create({
-
   typingIndicator: {
-    paddingVertical: 8,
-    backgroundColor: '#f0f0f0',
-    borderRadius: 8,
-    marginBottom: 8,
+    paddingVertical: theme.spacing.sm,
+    paddingHorizontal: theme.spacing.md,
+    backgroundColor: theme.colors.surface,
+    borderRadius: theme.borderRadius.md,
+    marginBottom: theme.spacing.sm,
+    marginHorizontal: theme.spacing.md,
   },
   typingText: {
-    fontSize: 12,
-    color: '#666',
     fontStyle: 'italic',
   },
 })

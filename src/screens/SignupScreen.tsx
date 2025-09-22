@@ -1,19 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import {
   View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
   Alert,
-  ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
-} from 'react-native';import { SafeAreaView } from 'react-native-safe-area-context';
+  StyleSheet,
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types/navigation';
 import { useAuth } from '../hooks';
 import { validateEmail } from '../utils/validations';
+import { ThemedTextInput, ThemedButton, ThemedText } from '../components';
+import { theme } from '../styles/theme';
 
 type SignupScreenNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
@@ -75,25 +74,21 @@ const SignupScreen: React.FC<Props> = ({ navigation }) => {
   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView style={styles.content} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-        <Text style={styles.title}>Create Account</Text>
-        <Text style={styles.subtitle}>Sign up to get started</Text>
+        <ThemedText variant="heading1" style={styles.title}>Create Account</ThemedText>
+        <ThemedText variant="body" color="textSecondary" style={styles.subtitle}>Sign up to get started</ThemedText>
 
         <View style={styles.form}>
-          <TextInput
-            style={styles.input}
+          <ThemedTextInput
             placeholder="Name"
-            placeholderTextColor="#999"
             value={name}
             onChangeText={setName}
-            autoCapitalize="none"
+            autoCapitalize="words"
             autoCorrect={false}
             maxLength={25}
           />
 
-          <TextInput
-            style={styles.input}
+          <ThemedTextInput
             placeholder="Email"
-            placeholderTextColor="#999"
             value={email}
             onChangeText={setEmail}
             autoCapitalize="none"
@@ -102,10 +97,8 @@ const SignupScreen: React.FC<Props> = ({ navigation }) => {
             maxLength={25}
           />
 
-          <TextInput
-            style={styles.input}
+          <ThemedTextInput
             placeholder="Password"
-            placeholderTextColor="#999"
             value={password}
             onChangeText={setPassword}
             secureTextEntry
@@ -114,28 +107,24 @@ const SignupScreen: React.FC<Props> = ({ navigation }) => {
             maxLength={25}
           />
 
-          {/* <TextInput
-            style={styles.input}
-            placeholder="Confirm Password"
-            placeholderTextColor="#999"
-            value={confirmPassword}
-            onChangeText={setConfirmPassword}
-            secureTextEntry
-            autoCapitalize="none"
-            autoCorrect={false}
-            maxLength={25}
-          /> */}
-
-          <TouchableOpacity style={styles.signupButton} onPress={handleSignup}>
-            {isLoading && <ActivityIndicator animating={true} color="#fff" size={25} style={{ marginRight: 8 }} />}
-            <Text style={styles.signupButtonText}>Sign Up</Text>
-          </TouchableOpacity>
+          <ThemedButton
+            title="Sign Up"
+            variant="secondary"
+            onPress={handleSignup}
+            loading={isLoading}
+            fullWidth
+            style={styles.signupButton}
+          />
 
           <View style={styles.loginContainer}>
-            <Text style={styles.loginText}>Already have an account? </Text>
-            <TouchableOpacity onPress={navigateToLogin}>
-              <Text style={styles.loginLink}>Sign in</Text>
-            </TouchableOpacity>
+            <ThemedText variant="body" color="textSecondary">Already have an account? </ThemedText>
+            <ThemedButton
+              title="Sign in"
+              variant="outline"
+              size="small"
+              onPress={navigateToLogin}
+              style={styles.loginButton}
+            />
           </View>
         </View>
       </KeyboardAvoidingView>
@@ -146,66 +135,36 @@ const SignupScreen: React.FC<Props> = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: theme.colors.background,
   },
   content: {
     flex: 1,
-    padding: 20,
+    padding: theme.spacing.lg,
     justifyContent: 'center',
   },
   title: {
-    fontSize: 28,
-    fontWeight: 'bold',
     textAlign: 'center',
-    marginBottom: 8,
-    color: '#333',
+    marginBottom: theme.spacing.xs,
   },
   subtitle: {
-    fontSize: 16,
     textAlign: 'center',
-    color: '#666',
-    marginBottom: 40,
+    marginBottom: theme.spacing.xl,
   },
   form: {
     width: '100%',
   },
-  input: {
-    height: 50,
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    paddingHorizontal: 16,
-    marginBottom: 16,
-    fontSize: 16,
-    backgroundColor: '#f9f9f9',
-  },
   signupButton: {
-    backgroundColor: '#34C759',
-    height: 50,
-    borderRadius: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 10,
-    flexDirection: 'row'
-  },
-  signupButtonText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: '600',
+    marginTop: theme.spacing.md,
   },
   loginContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginTop: 30,
+    alignItems: 'center',
+    marginTop: theme.spacing.xl,
   },
-  loginText: {
-    fontSize: 16,
-    color: '#666',
-  },
-  loginLink: {
-    fontSize: 16,
-    color: '#007AFF',
-    fontWeight: '600',
+  loginButton: {
+    marginLeft: theme.spacing.xs,
+    height: 30,
   },
 });
 

@@ -1,12 +1,11 @@
 
 import React, { useEffect, memo } from 'react';
-import { FlatList, View, StyleSheet, TouchableOpacity, Text } from 'react-native';
-import { useMessages } from '../hooks';
-import MessageListItem from './MessageItem';
-import { ConnectedUser, Message, User } from '../types/api';
+import { FlatList, View, StyleSheet } from 'react-native';
+import { ConnectedUser, User } from '../types/api';
 import { useUsersList } from '../hooks/useUsersList';
 import UsersListItem from './UserListItem';
 import UsersListItemNonConnected from './UserListItemNonConnected';
+import { theme } from '../styles/theme';
 
 const UsersList = () => {
   const { users } = useUsersList();
@@ -33,13 +32,13 @@ const UsersList = () => {
     <View style={styles.container}>
 
       <FlatList
-        style={{ flex: 1, backgroundColor: '#bdbcbcff' }}
+        style={styles.flatList}
         data={users.connectedUsers}
         renderItem={renderItem}
         keyExtractor={keyExtractor}
       />
       <FlatList
-        style={{ backgroundColor: '#bdbcbcff' }}
+        style={styles.flatList}
         data={users.nonConnectedUsers}
         renderItem={renderItemNonConnected}
         keyExtractor={keyExtractorNonConnected}
@@ -52,17 +51,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     width: '100%',
+    backgroundColor: theme.colors.background,
   },
-  testButton: {
-    backgroundColor: '#007AFF',
-    padding: 10,
-    margin: 10,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  testButtonText: {
-    color: '#fff',
-    fontWeight: 'bold',
+  flatList: {
+    backgroundColor: theme.colors.background,
   },
 });
 

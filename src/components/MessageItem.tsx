@@ -2,6 +2,7 @@ import React from 'react';
 import { View, StyleSheet, Text } from 'react-native';
 import { Message } from '../types/api';
 import { useAuthStore } from '../store/authStore';
+import { theme } from '../styles/theme';
 
 const MessageListItem = ({message}: {message: Message}) => {
   const { user } = useAuthStore();
@@ -36,8 +37,8 @@ const MessageListItem = ({message}: {message: Message}) => {
 
 const styles = StyleSheet.create({
   container: {
-    marginVertical: 4,
-    marginHorizontal: 16,
+    marginVertical: theme.spacing.xs,
+    marginHorizontal: theme.spacing.md,
   },
   currentUserContainer: {
     alignItems: 'flex-end',
@@ -46,47 +47,48 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
   },
   senderName: {
-    fontSize: 12,
-    color: '#666',
+    fontSize: theme.typography.fontSize.xs,
+    color: theme.colors.textSecondary,
     marginBottom: 2,
-    marginLeft: 8,
-    fontWeight: '500',
+    marginLeft: theme.spacing.sm,
+    fontWeight: theme.typography.fontWeight.medium,
   },
   bubble: {
     maxWidth: '80%',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 18,
+    paddingHorizontal: theme.spacing.sm,
+    paddingVertical: theme.spacing.sm,
+    borderRadius: theme.borderRadius.lg,
     minWidth: 60,
+    ...theme.shadows.sm,
   },
   currentUserBubble: {
-    backgroundColor: '#007AFF',
-    borderBottomRightRadius: 4,
+    backgroundColor: theme.colors.primary,
+    borderBottomRightRadius: theme.borderRadius.sm,
   },
   otherUserBubble: {
-    backgroundColor: '#E5E5EA',
-    borderBottomLeftRadius: 4,
+    backgroundColor: theme.colors.tertiary,
+    borderBottomLeftRadius: theme.borderRadius.sm,
   },
   messageText: {
-    fontSize: 16,
-    lineHeight: 20,
+    fontSize: theme.typography.fontSize.md,
+    lineHeight: theme.typography.fontSize.md * theme.typography.lineHeight.normal,
     marginBottom: 2,
   },
   currentUserText: {
-    color: '#FFFFFF',
+    color: theme.colors.textPrimary,
   },
   otherUserText: {
-    color: '#000000',
+    color: theme.colors.textPrimary,
   },
   timestamp: {
-    fontSize: 11,
+    fontSize: theme.typography.fontSize.xs,
     alignSelf: 'flex-end',
   },
   currentUserTimestamp: {
     color: 'rgba(255, 255, 255, 0.7)',
   },
   otherUserTimestamp: {
-    color: '#666666',
+    color: 'rgba(255, 255, 255, 0.8)',
   },
 });
 

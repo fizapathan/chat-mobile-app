@@ -1,7 +1,8 @@
 import React, { useEffect } from 'react';
-import { StatusBar } from 'expo-status-bar';
+import { StatusBar, View } from 'react-native';
 import { AppNavigator } from './src/navigation';
 import { initializeStores } from './src/store';
+import { theme } from './src/styles/theme';
 
 export default function App() {
   useEffect(() => {
@@ -10,9 +11,12 @@ export default function App() {
   }, []);
 
   return (
-    <>
+    <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
       <AppNavigator />
-      <StatusBar style="auto" />
-    </>
+      <StatusBar 
+        barStyle="light-content"
+        backgroundColor={theme.colors.background}
+      />
+    </View>
   );
 }

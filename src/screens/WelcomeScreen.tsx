@@ -1,19 +1,21 @@
 import React, { useEffect } from 'react';
 import {
-  View,
   Text,
-  TouchableOpacity,
-  StyleSheet,
+  View,
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
-} from 'react-native';import { SafeAreaView } from 'react-native-safe-area-context';
+  StyleSheet,
+  TouchableOpacity,
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
 import { RootStackParamList } from '../types/navigation';
 import { useAuth, useMessages, useSocket } from '../hooks';
-import { Chats } from '../components';
+import { Chats, ThemedButton, ThemedText } from '../components';
 import MessageInput from '../components/MessageInput';
+import { theme } from '../styles/theme';
 
 
 type WelcomeScreenNavigationProp = NativeStackNavigationProp<
@@ -61,14 +63,15 @@ const WelcomeScreen: React.FC<Props> = ({ navigation, route }) => {
           <Text style={styles.logoutButtonText}>{isLoading ? <ActivityIndicator animating={true} color="#fff" size={25} style={{ marginRight: 8 }} /> : '⏻'}</Text>
         </TouchableOpacity>
       </View>
-      {isConnecting && <View style={{ position: 'absolute', top: 0, width: '100%', alignItems: 'center', paddingVertical: 4, backgroundColor: 'red' }}>
-        <Text>Connecting...</Text>
-      </View>}
+      {isConnecting && (
+        <View style={styles.connectingIndicator}>
+          <ThemedText variant="caption" color="textPrimary">Connecting...</ThemedText>
+        </View>
+      )}
       <KeyboardAvoidingView
-            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-            style={styles.content}
-          >
-        {/* <UsersList /> */}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={styles.content}
+      >
         <Chats />
         <MessageInput />
       </KeyboardAvoidingView>
@@ -79,82 +82,33 @@ const WelcomeScreen: React.FC<Props> = ({ navigation, route }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
-  },
-  content: {
-    flex: 1,
-    padding: 20,
-  },
-  welcomeSection: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  welcomeTitle: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 16,
-  },
-  emailText: {
-    fontSize: 20,
-    color: '#007AFF',
-    fontWeight: '600',
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: '#666',
-    textAlign: 'center',
-    lineHeight: 24,
-  },
-  messageSection: {
-    backgroundColor: '#fff',
-    padding: 20,
-    borderRadius: 12,
-    marginVertical: 20,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  messageTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 8,
-    textAlign: 'center',
-  },
-  messageText: {
-    fontSize: 14,
-    color: '#666',
-    textAlign: 'center',
-    lineHeight: 20,
+    backgroundColor: theme.colors.background,
   },
   header: {
     height: 48,
     flexDirection: 'row',
-    backgroundColor: '#9cd5faff',
+    backgroundColor: theme.colors.surface,
     justifyContent: 'flex-end',
     alignItems: 'center',
-    paddingHorizontal: 16
+    paddingHorizontal: theme.spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: theme.colors.border,
   },
-  input: {
+  connectingIndicator: {
+    position: 'absolute',
+    top: 48,
+    left: 0,
+    right: 0,
+    alignItems: 'center',
+    paddingVertical: theme.spacing.xs,
+    backgroundColor: theme.colors.warning,
+    zIndex: 1000,
+  },
+  content: {
     flex: 1,
-    height: 50,
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    paddingHorizontal: 16,
-    fontSize: 16,
-    backgroundColor: '#f9f9f9',
   },
   logoutButton: {
-    backgroundColor: '#FF3B30',
+    backgroundColor: '#691913ff',
     height: 32,
     minWidth: 32,
     borderRadius: 32,

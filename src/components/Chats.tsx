@@ -1,9 +1,11 @@
 
 import React, { useEffect, memo, useRef, useState } from 'react';
-import { FlatList, View, StyleSheet, TouchableOpacity, Text, Image } from 'react-native';
+import { FlatList, View, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { useMessages } from '../hooks';
 import MessageListItem from './MessageItem';
 import { Message } from '../types/api';
+import { ThemedText } from './common';
+import { theme } from '../styles/theme';
 
 const Chats = () => {
   const { messages } = useMessages();
@@ -46,7 +48,7 @@ const Chats = () => {
       
           <FlatList
             ref={flatListRef}
-            style={{ flex: 1, backgroundColor: '#bdbcbcff' }}
+            style={styles.flatList}
             data={messages}
             renderItem={renderItem}
             keyExtractor={keyExtractor}
@@ -61,7 +63,7 @@ const Chats = () => {
               style={styles.scrollToBottomButton}
               onPress={scrollToBottom}
             >
-              <Text style={styles.scrollToBottomText}>↓</Text>
+              <ThemedText style={styles.scrollToBottomText}>↓</ThemedText>
             </TouchableOpacity>
           )}
     </View>
@@ -70,9 +72,9 @@ const Chats = () => {
 
 const ChatsEmptyView = memo(() => {
   return (
-    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 }}>
-      <Image style={{ width: 200, height: 200, marginBottom: 20 }} source={require('../../assets/icebreaker.webp')} />
-      <Text style={{ alignSelf: 'center', textAlign: 'center', fontSize: 18, fontWeight: 'bold' }}>Be the Ice-breaker! Send a message to start.</Text>
+    <View style={styles.emptyContainer}>
+      <Image style={styles.emptyImage} source={require('../../assets/icebreaker.webp')} />
+      <ThemedText variant="heading3" style={styles.emptyText}>Be the Ice-breaker! Send a message to start.</ThemedText>
     </View>
   )
 })
@@ -81,31 +83,41 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     width: '100%',
+    backgroundColor: theme.colors.background,
   },
-  testButtonText: {
-    color: '#fff',
-    fontWeight: 'bold',
+  flatList: {
+    flex: 1,
+    backgroundColor: theme.colors.background,
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: theme.spacing.lg,
+  },
+  emptyImage: {
+    width: 200,
+    height: 200,
+    marginBottom: theme.spacing.lg,
+  },
+  emptyText: {
+    textAlign: 'center',
   },
   scrollToBottomButton: {
     position: 'absolute',
-    bottom: 20,
-    right: 20,
-    backgroundColor: '#007AFF',
+    bottom: theme.spacing.lg,
+    right: theme.spacing.lg,
+    backgroundColor: theme.colors.primary,
     width: 50,
     height: 50,
     borderRadius: 25,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
+    ...theme.shadows.lg,
   },
   scrollToBottomText: {
-    color: '#fff',
-    fontSize: 20,
-    fontWeight: 'bold',
+    fontSize: theme.typography.fontSize.lg,
+    fontWeight: theme.typography.fontWeight.bold,
   },
 });
 export default memo(Chats);
