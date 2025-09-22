@@ -13,10 +13,10 @@ const Chats = () => {
   const [showScrollToBottom, setShowScrollToBottom] = useState(false);
   const [isAtEnd, setIsAtEnd] = useState(true);
 
-  console.log('Chats component rendering with messages:', messages.length);
+  // console.log('Chats component rendering with messages:', messages.length);
 
   useEffect(() => {
-    console.log('Chats: Messages updated:', messages);
+    // console.log('Chats: Messages updated:', messages);
     if (isAtEnd && messages.length > 0) {
       setTimeout(() => {
         flatListRef.current?.scrollToEnd({ animated: true });

@@ -146,23 +146,21 @@ export class SocketService {
   /**
    * Start typing indicator
    */
-  startTyping(userName: string, chatRoomId?: string): void {
+  startTyping(userId: string): void {
     if (!this.socket?.connected) {
       return;
     }
-
-    this.socket.emit('user:typing:start', { userName });
+    this.socket.emit('user:typing:start', { userId });
   }
 
   /**
    * Stop typing indicator
    */
-  stopTyping(userName: string, chatRoomId?: string): void {
+  stopTyping(userId: string): void {
     if (!this.socket?.connected) {
       return;
     }
-
-    this.socket.emit('user:typing:stop', { userName });
+    this.socket.emit('user:typing:stop', { userId });
   }
 
   /**
@@ -243,7 +241,7 @@ export class SocketService {
   /**
    * Listen for typing indicators
    */
-  onUserTyping(callback: (data: { userName: string; userId: string; chatRoomId?: string }) => void): void {
+  onUserTyping(callback: (data: { userId: string; userName?: string; chatRoomId?: string }) => void): void {
     if (!this.socket) return;
     
     this.socket.on('typing:start', callback);
@@ -252,7 +250,7 @@ export class SocketService {
   /**
    * Listen for stop typing indicators
    */
-  onUserStoppedTyping(callback: (data: { userName: string; chatRoomId?: string }) => void): void {
+  onUserStoppedTyping(callback: (data: { userId: string; userName?: string; chatRoomId?: string }) => void): void {
     if (!this.socket) return;
     
     this.socket.on('typing:stop', callback);

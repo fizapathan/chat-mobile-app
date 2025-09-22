@@ -50,9 +50,9 @@ const WelcomeScreen: React.FC<Props> = ({ navigation, route }) => {
     }
   }, [isAuthenticated]);
 
-  useEffect(() => {
-    if(isConnected && user) fetchUsers(user.id);
-  }, [isConnected]);
+  // useEffect(() => {
+  //   if(isConnected && user) fetchUsers(user.id);
+  // }, [isConnected]);
 
   const handleLogout = () => logout();
 

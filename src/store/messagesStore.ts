@@ -5,9 +5,10 @@ import { useAuthStore } from './authStore';
 
 interface MessagesState {
   messages: Message[];
-  typing: string[]; // Array of userNames who are typing
+  typing: { userId: string; userName: string }[]; // Array of typing user objects
   isLoading: boolean;
   error: string | null;
+  typingTimeouts: Record<string, NodeJS.Timeout>; // Track timeouts for auto-removal
 }
 
 interface MessagesActions {
@@ -22,7 +23,7 @@ interface MessagesActions {
   clearError: () => void;
   
   // Typing indicators
-  addTypingUser: (userId: string, chatRoomId?: string) => void;
+  addTypingUser: (userId: string, userName: string, chatRoomId?: string) => void;
   removeTypingUser: (userId: string, chatRoomId?: string) => void;
   clearTyping: () => void;
 
@@ -41,6 +42,7 @@ export const useMessagesStore = create<MessagesStore>((set, get) => ({
   typing: [],
   isLoading: false,
   error: null,
+  typingTimeouts: {},
 
   // Basic actions
   setLoading: (isLoading) => set({ isLoading }),
@@ -51,7 +53,7 @@ export const useMessagesStore = create<MessagesStore>((set, get) => ({
    * Add a single message
    */
   addMessage: (message) => {
-    console.log('Adding message to store:', message);
+    // console.log('Adding message to store:', message);
     set((state) => ({
       messages: [...state.messages, message],
       error: null,
@@ -111,31 +113,95 @@ export const useMessagesStore = create<MessagesStore>((set, get) => ({
   /**
    * Add typing indicator
    */
-  addTypingUser: (userName) => {
+  addTypingUser: (userId, userName) => {
+    const loggedInUser = useAuthStore.getState().user;
+    
+    // Don't add current user to typing indicators (filter by userId)
+    if (loggedInUser && userId === loggedInUser.id) {
+      console.log("Skipping self-typing for userId:", userId);
+      return;
+    }
+    
     set((state) => {
-      const exists = state.typing.includes(userName);
+      const exists = state.typing.find(typingUser => typingUser.userId === userId);
       if (!exists) {
+        console.log("Adding typing user:", userId, userName, "Current typing:", state.typing);
+        
+        // Clear any existing timeout for this user
+        if (state.typingTimeouts[userId]) {
+          clearTimeout(state.typingTimeouts[userId]);
+        }
+        
+        // Set new timeout to auto-remove after 5 seconds
+        const timeout = setTimeout(() => {
+          console.log("Auto-removing typing user due to timeout:", userId);
+          get().removeTypingUser(userId);
+        }, 5000);
+        
         return {
-          typing: [...state.typing, userName],
+          typing: [...state.typing, { userId, userName }],
+          typingTimeouts: {
+            ...state.typingTimeouts,
+            [userId]: timeout
+          }
+        };
+      } else {
+        // User already typing, just refresh the timeout
+        if (state.typingTimeouts[userId]) {
+          clearTimeout(state.typingTimeouts[userId]);
+        }
+        
+        const timeout = setTimeout(() => {
+          console.log("Auto-removing typing user due to timeout:", userId);
+          get().removeTypingUser(userId);
+        }, 5000);
+        
+        return {
+          ...state,
+          typingTimeouts: {
+            ...state.typingTimeouts,
+            [userId]: timeout
+          }
         };
       }
-      return state;
     });
   },
 
   /**
    * Remove typing indicator
    */
-  removeTypingUser: (userId, chatRoomId) => {
-    set((state) => ({
-      typing: state.typing.filter((name) => name !== userId)
-    }));
+  removeTypingUser: (userId) => {
+    set((state) => {
+      console.log("Removing typing user:", userId, "Current typing:", state.typing);
+      
+      // Clear the timeout for this user
+      if (state.typingTimeouts[userId]) {
+        clearTimeout(state.typingTimeouts[userId]);
+      }
+      
+      const { [userId]: removedTimeout, ...remainingTimeouts } = state.typingTimeouts;
+      
+      return {
+        typing: state.typing.filter((typingUser) => typingUser.userId !== userId),
+        typingTimeouts: remainingTimeouts
+      };
+    });
   },
 
   /**
    * Clear all typing indicators
    */
-  clearTyping: () => set({ typing: [] }),
+  clearTyping: () => set((state) => {
+    // Clear all timeouts
+    Object.values(state.typingTimeouts).forEach(timeout => {
+      if (timeout) clearTimeout(timeout);
+    });
+    
+    return {
+      typing: [],
+      typingTimeouts: {}
+    };
+  }),
 
   /**
    * Send a message via socket
@@ -163,7 +229,7 @@ export const useMessagesStore = create<MessagesStore>((set, get) => ({
         isRead: false,
         senderName: 'You',
       };
-      console.log('Optimistically adding message to store:', optimisticMessage);
+      // console.log('Optimistically adding message to store:', optimisticMessage);
       get().addMessage(optimisticMessage);
       
     } catch (error) {
@@ -227,14 +293,20 @@ export const useMessagesStore = create<MessagesStore>((set, get) => ({
     });
 
     // Listen for typing indicators
-    socketService.onUserTyping(({ userName }) => {
-      console.log('User started typing:', userName);
-      addTypingUser(userName);
+    socketService.onUserTyping(({ userId, userName, chatRoomId }) => {
+      console.log('User started typing:', userName, 'userId:', userId, 'in room:', chatRoomId);
+      // Use both userId and userName
+      if (userId && userName) {
+        addTypingUser(userId, userName, chatRoomId);
+      }
     });
 
-    socketService.onUserStoppedTyping(({ userName }) => {
-      console.log('User stopped typing:', userName);
-      removeTypingUser(userName);
+    socketService.onUserStoppedTyping(({ userId, userName, chatRoomId }) => {
+      console.log('User stopped typing:', userName, 'userId:', userId, 'in room:', chatRoomId);
+      // Use userId to remove
+      if (userId) {
+        removeTypingUser(userId, chatRoomId);
+      }
     });
   },
 

@@ -4,8 +4,6 @@ import { ThemedText } from "./common";
 import { theme } from "../styles/theme";
 
 const TypingIndicator = ({typingUsers}: {typingUsers: string[]}) => {
-  // const { typingUsers } = useTyping();
-console.log("typing..", typingUsers)
   return (
     <>
       {typingUsers.length > 0 && (

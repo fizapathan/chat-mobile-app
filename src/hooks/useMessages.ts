@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useMessagesStore } from '../store';
 
 // Hook for handling incoming messages - now uses Zustand store
@@ -11,6 +12,8 @@ export const useMessages = () => {
   const clearMessages = useMessagesStore((state) => state.clearMessages);
   const sendMessage = useMessagesStore((state) => state.sendMessage);
   const markMessageAsRead = useMessagesStore((state) => state.markMessageAsRead);
+  const addTypingUser = useMessagesStore((state) => state.addTypingUser);
+  const removeTypingUser = useMessagesStore((state) => state.removeTypingUser);
 
   return {
     messages,
@@ -21,5 +24,7 @@ export const useMessages = () => {
     clearMessages,
     sendMessage,
     markMessageAsRead,
+    addTypingUser,
+    removeTypingUser
   };
 };
