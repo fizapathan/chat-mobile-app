@@ -74,6 +74,7 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
             autoCapitalize="none"
             autoCorrect={false}
             keyboardType="email-address"
+            maxLength={25}
           />
 
           <ThemedTextInput
@@ -83,6 +84,8 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
             secureTextEntry
             autoCapitalize="none"
             autoCorrect={false}
+            showPasswordToggle
+            maxLength={35}
           />
 
           <ThemedButton

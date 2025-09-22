@@ -104,7 +104,8 @@ const SignupScreen: React.FC<Props> = ({ navigation }) => {
             secureTextEntry
             autoCapitalize="none"
             autoCorrect={false}
-            maxLength={25}
+            maxLength={35}
+            showPasswordToggle
           />
 
           <ThemedButton

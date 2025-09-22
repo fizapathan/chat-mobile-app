@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   TextInput as RNTextInput,
   TextInputProps as RNTextInputProps,
@@ -10,6 +10,7 @@ import {
   ViewStyle,
   TextStyle,
   ActivityIndicator,
+  View,
 } from 'react-native';
 import { theme } from '../../styles/theme';
 
@@ -17,26 +18,59 @@ import { theme } from '../../styles/theme';
 interface ThemedTextInputProps extends RNTextInputProps {
   variant?: 'default' | 'bordered';
   error?: boolean;
+  showPasswordToggle?: boolean;
 }
 
 export const ThemedTextInput: React.FC<ThemedTextInputProps> = ({
   style,
   variant = 'default',
   error = false,
+  showPasswordToggle = false,
+  secureTextEntry,
   placeholderTextColor = theme.colors.textMuted,
   ...props
 }) => {
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  
   const inputStyle = [
     styles.textInput,
     variant === 'bordered' && styles.textInputBordered,
     error && styles.textInputError,
+    showPasswordToggle && styles.textInputWithIcon,
     style,
   ];
+
+  const togglePasswordVisibility = () => {
+    setIsPasswordVisible(!isPasswordVisible);
+  };
+
+  if (showPasswordToggle) {
+    return (
+      <View style={styles.inputContainer}>
+        <RNTextInput
+          style={inputStyle}
+          placeholderTextColor={placeholderTextColor}
+          secureTextEntry={secureTextEntry && !isPasswordVisible}
+          {...props}
+        />
+        <TouchableOpacity
+          style={styles.eyeButton}
+          onPress={togglePasswordVisibility}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+        >
+          <Text style={styles.eyeIcon}>
+            {isPasswordVisible ? '🙈' : '👁️'}
+          </Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
 
   return (
     <RNTextInput
       style={inputStyle}
       placeholderTextColor={placeholderTextColor}
+      secureTextEntry={secureTextEntry}
       {...props}
     />
   );
@@ -151,6 +185,28 @@ const styles = StyleSheet.create({
     borderColor: theme.colors.error,
     borderWidth: 1,
   } as ViewStyle,
+  textInputWithIcon: {
+    paddingRight: 50, // Make room for the eye icon
+  } as ViewStyle,
+  
+  // Password Toggle Styles
+  inputContainer: {
+    position: 'relative',
+    marginBottom: theme.spacing.md,
+  } as ViewStyle,
+  eyeButton: {
+    position: 'absolute',
+    right: theme.spacing.md,
+    top: 0,
+    bottom: theme.spacing.md,
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: 40,
+  } as ViewStyle,
+  eyeIcon: {
+    fontSize: 20,
+    color: theme.colors.textMuted,
+  } as TextStyle,
 
   // Button Styles
   button: {
