@@ -1,57 +1,22 @@
-import { useState, useRef, useCallback, useEffect } from "react";
-import { SocketService } from "../services";
+import { usePresenceStore, useOnlineUsers, useIsUserOnline, useOnlineUsersCount } from '../store';
 
-// Hook for handling user presence
+// Hook for handling user presence - now uses Zustand store
 export const useUserPresence = () => {
-  const [onlineUsers, setOnlineUsers] = useState<Set<string>>(new Set());
-  const socketService = useRef<SocketService>(SocketService.getInstance());
-
-  /**
-   * Set user as online
-   */
-  const setUserOnline = useCallback((userId: string) => {
-    setOnlineUsers(prev => new Set([...prev, userId]));
-  }, []);
-
-  /**
-   * Set user as offline
-   */
-  const setUserOffline = useCallback((userId: string) => {
-    setOnlineUsers(prev => {
-      const newSet = new Set(prev);
-      newSet.delete(userId);
-      return newSet;
-    });
-  }, []);
-
-  /**
-   * Check if user is online
-   */
-  const isUserOnline = useCallback((userId: string): boolean => {
-    return onlineUsers.has(userId);
-  }, [onlineUsers]);
-
-  // Set up socket event listeners
-  useEffect(() => {
-    const socket = socketService.current;
-
-    socket.onUserOnline(({ userId }) => {
-      setUserOnline(userId);
-    });
-
-    socket.onUserOffline(({ userId }) => {
-      setUserOffline(userId);
-    });
-
-    // Cleanup listeners on unmount
-    return () => {
-      socket.removeListener('user:online');
-      socket.removeListener('user:offline');
-    };
-  }, [setUserOnline, setUserOffline]);
+  const onlineUsers = useOnlineUsers();
+  const isUserOnline = usePresenceStore((state) => state.isUserOnline);
+  const setUserOnline = usePresenceStore((state) => state.setUserOnline);
+  const setUserOffline = usePresenceStore((state) => state.setUserOffline);
+  const clearOnlineUsers = usePresenceStore((state) => state.clearOnlineUsers);
+  const onlineUsersCount = useOnlineUsersCount();
 
   return {
-    onlineUsers: Array.from(onlineUsers),
+    onlineUsers,
+    onlineUsersCount,
     isUserOnline,
+    setUserOnline,
+    setUserOffline,
+    clearOnlineUsers,
   };
 };
+
+export { useOnlineUsers, useIsUserOnline, useOnlineUsersCount };

@@ -7,10 +7,13 @@ import {
   TouchableOpacity,
   StyleSheet,
   Alert,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types/navigation';
 import { useAuth } from '../hooks/useAuth';
+import { validateEmail } from '../utils/validations';
 
 type LoginScreenNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
@@ -40,6 +43,12 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
       return;
     }
 
+    // Email validation
+    if (validateEmail(email)) {
+      Alert.alert('Error', 'Please enter a valid email address');
+      return;
+    }
+    
     console.log('Attempting login with email:', email);
     // Call the login function from the useAuth hook
     login({ email, password })
@@ -54,7 +63,7 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.content}>
+      <KeyboardAvoidingView style={styles.content} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         <Text style={styles.title}>Welcome Back</Text>
         <Text style={styles.subtitle}>Sign in to your account</Text>
 
@@ -92,7 +101,7 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
             </TouchableOpacity>
           </View>
         </View>
-      </View>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };

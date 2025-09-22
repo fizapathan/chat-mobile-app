@@ -6,6 +6,9 @@ import {
   SendMessageRequest,
   IncomingSocketEvents,
   OutgoingSocketEvents,
+  User,
+  ConnectedUser,
+  ChatRoom,
 } from '../types/api';
 
 export class SocketService {
@@ -30,7 +33,7 @@ export class SocketService {
   /**
    * Connect to socket server
    */
-  async connect(): Promise<void> {
+  async connect(callback: (eventName: string) => void): Promise<void> {
     try {
       const token = await AuthService.getStoredToken();
       
@@ -48,7 +51,7 @@ export class SocketService {
         reconnectionDelay: this.reconnectDelay,
       });
 
-      this.setupEventListeners();
+      this.setupEventListeners(callback);
       
     } catch (error) {
       console.error('Socket connection failed:', error);
@@ -71,6 +74,29 @@ export class SocketService {
    */
   isConnected(): boolean {
     return this.socket?.connected || false;
+  }
+
+  /**
+   * Send userid to fetch users
+   */
+  fetchUsers(userId: string): void {
+    if (!this.socket?.connected) {
+      throw new Error('Socket not connected');
+    }
+
+    this.socket.emit('users:get', { userId });
+  }
+
+  /**
+   * Send userid to fetch users
+   */
+  createChatRoom(currentUserId: string, withUserId: string): void {
+    if (!this.socket?.connected) {
+      throw new Error('Socket not connected');
+    }
+
+    console.log("Creating chat room for users:", currentUserId, withUserId );
+    this.socket.emit('chatroom:getOrCreate', { currentUserId, withUserId });
   }
 
   /**
@@ -98,45 +124,84 @@ export class SocketService {
   /**
    * Join a chat room
    */
-  joinRoom(roomId: string): void {
+  joinRoom(chatRoomId: string): void {
     if (!this.socket?.connected) {
       throw new Error('Socket not connected');
     }
     
-    this.socket.emit('room:join', { roomId });
+    this.socket.emit('room:join', { chatRoomId });
   }
 
   /**
    * Leave a chat room
    */
-  leaveRoom(roomId: string): void {
+  leaveRoom(chatRoomId: string): void {
     if (!this.socket?.connected) {
       throw new Error('Socket not connected');
     }
     
-    this.socket.emit('room:leave', { roomId });
+    this.socket.emit('room:leave', { chatRoomId });
   }
 
   /**
    * Start typing indicator
    */
-  startTyping(roomId?: string): void {
+  startTyping(userName: string, chatRoomId?: string): void {
     if (!this.socket?.connected) {
       return;
     }
-    
-    this.socket.emit('user:typing:start', { roomId });
+
+    this.socket.emit('user:typing:start', { userName });
   }
 
   /**
    * Stop typing indicator
    */
-  stopTyping(roomId?: string): void {
+  stopTyping(userName: string, chatRoomId?: string): void {
     if (!this.socket?.connected) {
       return;
     }
+
+    this.socket.emit('user:typing:stop', { userName });
+  }
+
+  /**
+   * Listen for fetch users
+   * data will be received as: { connectedUsers: ConnectedUser[], nonConnectedUsers: User[] }
+   */
+  onUsersFetched(callback: ({connectedUsers, nonConnectedUsers}: {connectedUsers: ConnectedUser[], nonConnectedUsers: User[]}) => void): void {
+    if (!this.socket) return;
     
-    this.socket.emit('user:typing:stop', { roomId });
+    this.socket.on('users:received', callback);
+  }
+
+  /**
+   * Listen for fetch users
+   * data will be received as: { connectedUsers: ConnectedUser[], nonConnectedUsers: User[] }
+   */
+  onChatRoomCreated(callback: (room: ChatRoom) => void): void {
+    if (!this.socket) return;
+
+    this.socket.on('chatRoom:created', callback);
+  }
+
+  /**
+   * Listen for fetch users
+   * data will be received as: { connectedUsers: ConnectedUser[], nonConnectedUsers: User[] }
+   */
+  onChatRoomHistory(callback: (messages: Message[]) => void): void {
+    if (!this.socket) return;
+
+    this.socket.on('chatRoom:history', callback);
+  }
+
+  /**
+   * Listen for incoming messages
+   */
+  onMessageHistory(callback: (messages: Message[]) => void): void {
+    if (!this.socket) return;
+
+    this.socket.on('message:history', callback);
   }
 
   /**
@@ -178,7 +243,7 @@ export class SocketService {
   /**
    * Listen for typing indicators
    */
-  onUserTyping(callback: (data: { userId: string; roomId?: string }) => void): void {
+  onUserTyping(callback: (data: { userName: string; userId: string; chatRoomId?: string }) => void): void {
     if (!this.socket) return;
     
     this.socket.on('typing:start', callback);
@@ -187,7 +252,7 @@ export class SocketService {
   /**
    * Listen for stop typing indicators
    */
-  onUserStoppedTyping(callback: (data: { userId: string; roomId?: string }) => void): void {
+  onUserStoppedTyping(callback: (data: { userName: string; chatRoomId?: string }) => void): void {
     if (!this.socket) return;
     
     this.socket.on('typing:stop', callback);
@@ -218,24 +283,28 @@ export class SocketService {
   /**
    * Setup core socket event listeners
    */
-  private setupEventListeners(): void {
+  private setupEventListeners(callback: (eventName: string) => void): void {
     if (!this.socket) return;
 
     this.socket.on('connect', () => {
       console.log('Socket connected');
+      callback('connect');
       this.reconnectAttempts = 0;
     });
 
     this.socket.on('disconnect', (reason) => {
       console.log('Socket disconnected:', reason);
+      callback('disconnect');
     });
 
     this.socket.on('connect_error', (error) => {
       console.error('Socket connection error:', error);
-      this.handleReconnect();
+      callback('connect_error');
+      this.handleReconnect(callback);
     });
 
     this.socket.on('error', (error) => {
+      callback('error');
       console.error('Socket error:', error);
     });
   }
@@ -243,7 +312,7 @@ export class SocketService {
   /**
    * Handle reconnection logic
    */
-  private async handleReconnect(): Promise<void> {
+  private async handleReconnect(callback: (eventName: string) => void): Promise<void> {
     if (this.reconnectAttempts >= this.maxReconnectAttempts) {
       console.error('Max reconnection attempts reached');
       return;
@@ -257,9 +326,10 @@ export class SocketService {
     
     setTimeout(async () => {
       try {
-        await this.connect();
+        await this.connect(callback);
       } catch (error) {
         console.error('Reconnection failed:', error);
+        callback('error');
       }
     }, delay);
   }

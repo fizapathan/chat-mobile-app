@@ -37,7 +37,7 @@ export interface Message {
   text: string;
   senderId: string;
   receiverId?: string;
-  roomId?: string;
+  chatRoomId?: string;
   timestamp: string;
   messageType: 'text' | 'image' | 'file';
   isRead: boolean;
@@ -56,11 +56,20 @@ export interface ChatRoom {
   updatedAt: string;
 }
 
+export interface ConnectedUser {
+    user: User;
+    unreadCount: number;
+    chatRoomId: string;
+    lastMessage: string;
+}
+
 export interface SendMessageRequest {
   text: string;
-  receiverId?: string;
-  roomId?: string;
+  senderId: string;
+  chatRoomId: string;
   messageType?: 'text' | 'image' | 'file';
+  senderName?: string;
+  timestamp?: string;
 }
 
 // Socket event types
@@ -69,19 +78,20 @@ export interface IncomingSocketEvents {
   'message:read': { messageId: string; readBy: string };
   'user:online': { userId: string };
   'user:offline': { userId: string };
-  'room:joined': { roomId: string; user: User };
-  'room:left': { roomId: string; userId: string };
-  'typing:start': { userId: string; roomId?: string };
-  'typing:stop': { userId: string; roomId?: string };
+  'users:received': { connectedUsers: ConnectedUser[]; nonConnectedUsers: User[]};
+  'room:joined': { chatRoomId: string; user: User };
+  'room:left': { chatRoomId: string; userId: string };
+  'typing:start': { userId: string; chatRoomId?: string };
+  'typing:stop': { userId: string; chatRoomId?: string };
 }
 
 export interface OutgoingSocketEvents {
   'message:send': SendMessageRequest;
   'message:markRead': { messageId: string };
-  'room:join': { roomId: string };
-  'room:leave': { roomId: string };
-  'user:typing:start': { roomId?: string };
-  'user:typing:stop': { roomId?: string };
+  'room:join': { chatRoomId: string };
+  'room:leave': { chatRoomId: string };
+  'user:typing:start': { chatRoomId?: string };
+  'user:typing:stop': { chatRoomId?: string };
 }
 
 // API Error types

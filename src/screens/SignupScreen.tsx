@@ -7,10 +7,13 @@ import {
   StyleSheet,
   Alert,
   ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types/navigation';
 import { useAuth } from '../hooks';
+import { validateEmail } from '../utils/validations';
 
 type SignupScreenNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
@@ -37,16 +40,23 @@ const SignupScreen: React.FC<Props> = ({ navigation }) => {
   }, [isAuthenticated]);
 
   const handleSignup = () => {
-    if (!email.trim() || !email.trim() || !password.trim() || !confirmPassword.trim()) {
+    if (!email.trim() || !email.trim() || !password.trim()) { // || !confirmPassword.trim()
       Alert.alert('Error', 'Please fill in all fields');
       return;
     }
 
-    if (password !== confirmPassword) {
-      Alert.alert('Error', 'Passwords do not match');
+    // if (password !== confirmPassword) {
+    //   Alert.alert('Error', 'Passwords do not match');
+    //   return;
+    // }
+
+    // Email validation
+    if (validateEmail(email)) {
+      Alert.alert('Error', 'Please enter a valid email address');
       return;
     }
 
+    // Password validation
     if (password.length < 6) {
       Alert.alert('Error', 'Password must be at least 6 characters long');
       return;
@@ -64,7 +74,7 @@ const SignupScreen: React.FC<Props> = ({ navigation }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.content}>
+      <KeyboardAvoidingView style={styles.content} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         <Text style={styles.title}>Create Account</Text>
         <Text style={styles.subtitle}>Sign up to get started</Text>
 
@@ -104,7 +114,7 @@ const SignupScreen: React.FC<Props> = ({ navigation }) => {
             maxLength={25}
           />
 
-          <TextInput
+          {/* <TextInput
             style={styles.input}
             placeholder="Confirm Password"
             placeholderTextColor="#999"
@@ -114,7 +124,7 @@ const SignupScreen: React.FC<Props> = ({ navigation }) => {
             autoCapitalize="none"
             autoCorrect={false}
             maxLength={25}
-          />
+          /> */}
 
           <TouchableOpacity style={styles.signupButton} onPress={handleSignup}>
             {isLoading && <ActivityIndicator animating={true} color="#fff" size={25} style={{ marginRight: 8 }} />}
@@ -128,7 +138,7 @@ const SignupScreen: React.FC<Props> = ({ navigation }) => {
             </TouchableOpacity>
           </View>
         </View>
-      </View>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };

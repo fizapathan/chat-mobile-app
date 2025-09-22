@@ -9,12 +9,16 @@ import {
 } from '../types/api';
 
 export class AuthService {
+  static getUrlPrefix() {
+    return '/auth';
+  }
+
   /**
    * Login user with email and password
    */
   static async login(credentials: LoginRequest): Promise<AuthResponse> {
     try {
-      const response = await apiClient.post<AuthResponse>('/login', credentials);
+      const response = await apiClient.post<AuthResponse>(this.getUrlPrefix() + '/login', credentials);
       const authData = handleApiResponse(response);
       
       // Store auth data locally
@@ -31,7 +35,7 @@ export class AuthService {
    */
   static async signup(userData: SignupRequest): Promise<AuthResponse> {
     try {
-      const response = await apiClient.post<AuthResponse>('/signup', userData);
+      const response = await apiClient.post<AuthResponse>(this.getUrlPrefix() + '/signup', userData);
       const authData = handleApiResponse(response);
       
       // Store auth data locally
@@ -70,7 +74,7 @@ export class AuthService {
         throw new Error('No refresh token available');
       }
 
-      const response = await apiClient.post<AuthResponse>('/auth/refresh', {
+      const response = await apiClient.post<AuthResponse>(this.getUrlPrefix() + '/refresh', {
         refreshToken,
       } as RefreshTokenRequest);
       
@@ -92,7 +96,7 @@ export class AuthService {
    */
   static async getCurrentUser(): Promise<User> {
     try {
-      const response = await apiClient.get<User>('/auth/me');
+      const response = await apiClient.get<User>(this.getUrlPrefix() + '/me');
       return handleApiResponse(response);
     } catch (error) {
       throw new Error(handleApiError(error));
@@ -104,7 +108,7 @@ export class AuthService {
    */
   static async updateProfile(userData: Partial<User>): Promise<User> {
     try {
-      const response = await apiClient.put<User>('/auth/profile', userData);
+      const response = await apiClient.put<User>(this.getUrlPrefix() + '/profile', userData);
       const updatedUser = handleApiResponse(response);
       
       // Update stored user data

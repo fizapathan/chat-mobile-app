@@ -5,13 +5,16 @@ import {
   TouchableOpacity,
   StyleSheet,
   ActivityIndicator,
-  TextInput,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
 import { RootStackParamList } from '../types/navigation';
 import { useAuth, useMessages, useSocket } from '../hooks';
-import Chats from '../components/Chats';
+import { Chats, TypingIndicator } from '../components';
+import MessageInput from '../components/MessageInput';
+
 
 type WelcomeScreenNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
@@ -28,66 +31,54 @@ interface Props {
 const WelcomeScreen: React.FC<Props> = ({ navigation, route }) => {
   const { email } = route.params || {};
 
-  const [messageText, setMessageText] = React.useState('');
-
-  const { logout, isLoading } = useAuth();
-  const { connect, sendMessage, isConnecting } = useSocket();
-  const { messages, addMessage } = useMessages();
+  const { logout, isLoading, isAuthenticated } = useAuth();
+  const { connect, isConnecting, isConnected, fetchUsers, disconnect } = useSocket();
+  const { clearMessages } = useMessages();
   const { user } = useAuth();
 
   useEffect(() => {
-    connect()
+    connect();
+    return () => disconnect();
   }, []);
 
-  const send = () => {
-    if (!messageText.trim() || !user) {
-      return;
+  useEffect(() => {
+    if (!isAuthenticated || !user) {
+      clearMessages();
+      navigation.replace('Login');
     }
-    sendMessage({ text: messageText.trim() });
-    addMessage({ text: messageText.trim(), id: user.email, senderId: user.id, timestamp: Date.now().toString(), messageType: 'text', isRead: false });
-    setMessageText('');
-  }
+  }, [isAuthenticated]);
 
-  const handleLogout = () => {
-    logout();
-    navigation.replace('Login');
-  };
+  useEffect(() => {
+    if(isConnected && user) fetchUsers(user.id);
+  }, [isConnected]);
+
+  const handleLogout = () => logout();
 
   return (
     <SafeAreaView style={styles.container}>
+      <View style={styles.header}>
+        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+          <Text style={styles.logoutButtonText}>{isLoading && <ActivityIndicator animating={true} color="#fff" size={25} style={{ marginRight: 8 }} />}⏻</Text>
+        </TouchableOpacity>
+      </View>
       {isConnecting && <View style={{ position: 'absolute', top: 0, width: '100%', alignItems: 'center', paddingVertical: 4, backgroundColor: 'red' }}>
         <Text>Connecting...</Text>
       </View>}
-      <View style={styles.content}>
-        <View style={styles.welcomeSection}>
-          <Text style={styles.welcomeTitle}>Welcome!</Text>
-          {user?.name && (
-            <Text style={styles.emailText}>Hello, {user.name}</Text>
-          )}
-          <Chats messages={messages} />
-          <View style={{flexDirection: 'row'}}>
-            <TextInput
-              style={styles.input}
-              placeholder="email"
-              placeholderTextColor="#999"
-              value={messageText}
-              onChangeText={setMessageText}
-              autoCapitalize="none"
-              autoCorrect={false}
-            />
-            <TouchableOpacity style={{ marginLeft: 8, paddingHorizontal: 12, justifyContent: 'center' }} onPress={send}>
-              <Text style={[{color: 'blue'}]}>Send</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        <View style={styles.actionSection}>
+      <KeyboardAvoidingView
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            style={styles.content}
+          >
+        {/* <UsersList /> */}
+        <Chats />
+        <TypingIndicator />
+        <MessageInput />
+        {/* <View style={styles.actionSection}>
           <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
             {isLoading && <ActivityIndicator animating={true} color="#fff" size={25} style={{ marginRight: 8 }} />}
             <Text style={styles.logoutButtonText}>Logout</Text>
           </TouchableOpacity>
-        </View>
-      </View>
+        </View> */}
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };
@@ -151,8 +142,13 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 20,
   },
-  actionSection: {
-    paddingBottom: 20,
+  header: {
+    height: 48,
+    flexDirection: 'row',
+    backgroundColor: '#9cd5faff',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    paddingHorizontal: 16
   },
   input: {
     flex: 1,
@@ -166,8 +162,9 @@ const styles = StyleSheet.create({
   },
   logoutButton: {
     backgroundColor: '#FF3B30',
-    height: 50,
-    borderRadius: 8,
+    height: 32,
+    minWidth: 32,
+    borderRadius: 32,
     justifyContent: 'center',
     alignItems: 'center',
     flexDirection: 'row'

@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { SocketService } from '../services';
 import { SendMessageRequest } from '../types/api';
+import { setupSocketListeners } from '../store';
 
 interface SocketState {
   isConnected: boolean;
@@ -11,12 +12,12 @@ interface SocketState {
 interface SocketActions {
   connect: () => Promise<void>;
   disconnect: () => void;
+  fetchUsers: (userId: string) => void;
+  createChatRoom: (userIds: string[]) => void;
   sendMessage: (messageData: SendMessageRequest) => void;
   markMessageAsRead: (messageId: string) => void;
-  joinRoom: (roomId: string) => void;
-  leaveRoom: (roomId: string) => void;
-  startTyping: (roomId?: string) => void;
-  stopTyping: (roomId?: string) => void;
+  joinRoom: (chatRoomId: string) => void;
+  leaveRoom: (chatRoomId: string) => void;
 }
 
 export const useSocket = (): SocketState & SocketActions => {
@@ -35,14 +36,10 @@ export const useSocket = (): SocketState & SocketActions => {
     try {
       setState(prev => ({ ...prev, isConnecting: true, error: null }));
       
-      await socketService.current.connect();
-      
-      setState(prev => ({
-        ...prev,
-        isConnected: true,
-        isConnecting: false,
-        error: null,
-      }));
+      await socketService.current.connect(setConnectionStateByEventName);
+
+      // Setup socket listeners for messages and presence
+      setupSocketListeners();
     } catch (error) {
       setState(prev => ({
         ...prev,
@@ -51,6 +48,38 @@ export const useSocket = (): SocketState & SocketActions => {
         error: error instanceof Error ? error.message : 'Connection failed',
       }));
       throw error;
+    }
+  }, []);
+
+  const setConnectionStateByEventName = useCallback((eventName: string) => {
+    switch (eventName) {
+      case 'connect':
+        setState(prev => ({
+          ...prev,
+          isConnected: true,
+          isConnecting: false,
+          error: null,
+        }));
+        break;
+      case 'disconnect':
+      case 'error':
+        setState(prev => ({
+          ...prev,
+          isConnected: false,
+          isConnecting: false,
+          error: null,
+        }));
+        break;
+      case 'connect_error':
+        setState(prev => ({
+          ...prev,
+          isConnected: false,
+          isConnecting: true,
+          error: 'Connection error',
+        }));
+        break;
+      default:
+        break;
     }
   }, []);
 
@@ -81,6 +110,28 @@ export const useSocket = (): SocketState & SocketActions => {
   }, []);
 
   /**
+   * Fetch chat users
+   */
+  const fetchUsers = useCallback((userId: string) => {
+    try {
+      socketService.current.fetchUsers(userId);
+    } catch (error) {
+      console.warn('Failed to fetch chat users:', error);
+    }
+  }, []);
+
+  /**
+   * Fetch chat users
+   */
+  const createChatRoom = useCallback((userIds: string[]) => {
+    try {
+      socketService.current.createChatRoom(userIds[0], userIds[1]);
+    } catch (error) {
+      console.warn('Failed to create chat room:', error);
+    }
+  }, []);
+
+  /**
    * Mark message as read
    */
   const markMessageAsRead = useCallback((messageId: string) => {
@@ -94,9 +145,9 @@ export const useSocket = (): SocketState & SocketActions => {
   /**
    * Join a chat room
    */
-  const joinRoom = useCallback((roomId: string) => {
+  const joinRoom = useCallback((chatRoomId: string) => {
     try {
-      socketService.current.joinRoom(roomId);
+      socketService.current.joinRoom(chatRoomId);
     } catch (error) {
       setState(prev => ({
         ...prev,
@@ -108,26 +159,12 @@ export const useSocket = (): SocketState & SocketActions => {
   /**
    * Leave a chat room
    */
-  const leaveRoom = useCallback((roomId: string) => {
+  const leaveRoom = useCallback((chatRoomId: string) => {
     try {
-      socketService.current.leaveRoom(roomId);
+      socketService.current.leaveRoom(chatRoomId);
     } catch (error) {
       console.warn('Failed to leave room:', error);
     }
-  }, []);
-
-  /**
-   * Start typing indicator
-   */
-  const startTyping = useCallback((roomId?: string) => {
-    socketService.current.startTyping(roomId);
-  }, []);
-
-  /**
-   * Stop typing indicator
-   */
-  const stopTyping = useCallback((roomId?: string) => {
-    socketService.current.stopTyping(roomId);
   }, []);
 
   // Monitor connection status
@@ -148,11 +185,11 @@ export const useSocket = (): SocketState & SocketActions => {
     ...state,
     connect,
     disconnect,
+    fetchUsers,
+    createChatRoom,
     sendMessage,
     markMessageAsRead,
     joinRoom,
-    leaveRoom,
-    startTyping,
-    stopTyping,
+    leaveRoom
   };
 };

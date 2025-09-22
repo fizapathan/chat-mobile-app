@@ -44,6 +44,7 @@ const AppNavigator: React.FC = () => {
             title: 'Welcome',
             headerLeft: () => null, // Prevent going back from welcome screen
             gestureEnabled: false, // Disable swipe back gesture
+            headerShown: false, 
           }}
         />
       </Stack.Navigator>
