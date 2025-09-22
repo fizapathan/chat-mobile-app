@@ -110,7 +110,7 @@ const SignupScreen: React.FC<Props> = ({ navigation }) => {
 
           <ThemedButton
             title="Sign Up"
-            variant="secondary"
+            variant="accent"
             onPress={handleSignup}
             loading={isLoading}
             fullWidth
@@ -166,6 +166,7 @@ const styles = StyleSheet.create({
   loginButton: {
     marginLeft: theme.spacing.xs,
     height: 30,
+    paddingHorizontal: theme.spacing.sm
   },
 });
 

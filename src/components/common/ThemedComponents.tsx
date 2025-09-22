@@ -12,6 +12,7 @@ import {
   ActivityIndicator,
   View,
 } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { theme } from '../../styles/theme';
 
 // Custom TextInput Component
@@ -79,7 +80,7 @@ export const ThemedTextInput: React.FC<ThemedTextInputProps> = ({
 // Custom Button Component
 interface ThemedButtonProps extends TouchableOpacityProps {
   title: string;
-  variant?: 'primary' | 'secondary' | 'tertiary' | 'outline';
+  variant?: 'primary' | 'secondary' | 'tertiary' | 'outline' | 'accent' | 'sunset' | 'ocean';
   size?: 'small' | 'medium' | 'large';
   loading?: boolean;
   fullWidth?: boolean;
@@ -97,7 +98,6 @@ export const ThemedButton: React.FC<ThemedButtonProps> = ({
 }) => {
   const buttonStyle = [
     styles.button,
-    styles[`button${variant.charAt(0).toUpperCase() + variant.slice(1)}` as keyof typeof styles],
     styles[`button${size.charAt(0).toUpperCase() + size.slice(1)}` as keyof typeof styles],
     fullWidth && styles.buttonFullWidth,
     disabled && styles.buttonDisabled,
@@ -111,20 +111,70 @@ export const ThemedButton: React.FC<ThemedButtonProps> = ({
     disabled && styles.buttonTextDisabled,
   ];
 
+  const getGradientColors = () => {
+    switch (variant) {
+      case 'primary':
+        return theme.gradients.primary as readonly string[];
+      case 'secondary':
+        return theme.gradients.secondary as readonly string[];
+      case 'tertiary':
+        return theme.gradients.tertiary as readonly string[];
+      case 'accent':
+        return theme.gradients.accent as readonly string[];
+      case 'sunset':
+        return theme.gradients.sunset as readonly string[];
+      case 'ocean':
+        return theme.gradients.ocean as readonly string[];
+      case 'outline':
+        return ['transparent', 'transparent'] as readonly string[]; // No gradient for outline
+      default:
+        return theme.gradients.primary as readonly string[];
+    }
+  };
+
+  if (variant === 'outline') {
+    return (
+      <TouchableOpacity
+        style={[buttonStyle, styles.buttonOutline]}
+        disabled={disabled || loading}
+        {...props}
+      >
+        {loading && (
+          <ActivityIndicator
+            size={size === 'small' ? 'small' : 24}
+            color={theme.colors.primary}
+            style={{ marginRight: theme.spacing.sm }}
+          />
+        )}
+        <Text style={textStyle}>{title}</Text>
+      </TouchableOpacity>
+    );
+  }
+
   return (
     <TouchableOpacity
       style={buttonStyle}
       disabled={disabled || loading}
       {...props}
     >
-      {loading && (
-        <ActivityIndicator
-          size={size === 'small' ? 'small' : 24}
-          color={variant === 'outline' ? theme.colors.primary : theme.colors.textPrimary}
-          style={{ marginRight: theme.spacing.sm }}
-        />
-      )}
-      <Text style={textStyle}>{title}</Text>
+      <LinearGradient
+        colors={getGradientColors() as any}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={[
+          styles.gradientBackground,
+          styles[`gradientBackground${size.charAt(0).toUpperCase() + size.slice(1)}` as keyof typeof styles]
+        ]}
+      >
+        {loading && (
+          <ActivityIndicator
+            size={size === 'small' ? 'small' : 24}
+            color={theme.colors.textPrimary}
+            style={{ marginRight: theme.spacing.sm }}
+          />
+        )}
+        <Text style={textStyle}>{title}</Text>
+      </LinearGradient>
     </TouchableOpacity>
   );
 };
@@ -215,15 +265,26 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flexDirection: 'row',
     ...theme.shadows.sm,
+    overflow: 'hidden', // Ensure gradient stays within border radius
   } as ViewStyle,
-  buttonPrimary: {
-    backgroundColor: theme.colors.primary,
+  gradientBackground: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: theme.borderRadius.md,
   } as ViewStyle,
-  buttonSecondary: {
-    backgroundColor: theme.colors.secondary,
+  gradientBackgroundSmall: {
+    paddingHorizontal: theme.spacing.md,
+    paddingVertical: theme.spacing.md,
   } as ViewStyle,
-  buttonTertiary: {
-    backgroundColor: theme.colors.tertiary,
+  gradientBackgroundMedium: {
+    paddingHorizontal: theme.spacing.lg,
+    paddingVertical: theme.spacing.sm,
+  } as ViewStyle,
+  gradientBackgroundLarge: {
+    paddingHorizontal: theme.spacing.xl,
+    paddingVertical: theme.spacing.md,
   } as ViewStyle,
   buttonOutline: {
     backgroundColor: 'transparent',
@@ -232,15 +293,12 @@ const styles = StyleSheet.create({
   } as ViewStyle,
   buttonSmall: {
     height: 36,
-    paddingHorizontal: theme.spacing.md,
   } as ViewStyle,
   buttonMedium: {
     height: 50,
-    paddingHorizontal: theme.spacing.lg,
   } as ViewStyle,
   buttonLarge: {
     height: 56,
-    paddingHorizontal: theme.spacing.xl,
   } as ViewStyle,
   buttonFullWidth: {
     width: '100%',
@@ -257,9 +315,18 @@ const styles = StyleSheet.create({
     color: theme.colors.textPrimary,
   } as TextStyle,
   buttonTextSecondary: {
-    color: theme.colors.textInverse,
+    color: theme.colors.textPrimary,
   } as TextStyle,
   buttonTextTertiary: {
+    color: theme.colors.textPrimary,
+  } as TextStyle,
+  buttonTextAccent: {
+    color: theme.colors.textPrimary,
+  } as TextStyle,
+  buttonTextSunset: {
+    color: theme.colors.textPrimary,
+  } as TextStyle,
+  buttonTextOcean: {
     color: theme.colors.textPrimary,
   } as TextStyle,
   buttonTextOutline: {

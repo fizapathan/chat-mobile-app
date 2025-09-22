@@ -35,6 +35,15 @@ borderLight: '#5927bcff',
   shadow: 'rgba(0, 0, 0, 0.3)',
 } as const;
 
+export const gradients = {
+  primary: ['#7b4bd6', '#5927bcff', '#3e1a80'],
+  secondary: ['#d4d8f0', '#abb0d9ff', '#8289c2'],
+  tertiary: ['#a584e8', '#865dde', '#6344b8'],
+  accent: ['#3bb166ff', '#2a5eb0ff', '#724fbdff'],
+  sunset: ['#f59e0b', '#ef4444', '#5927bcff'],
+  ocean: ['#3b82f6', '#5927bcff'],
+} as const;
+
 export const spacing = {
   xs: 4,
   sm: 8,
@@ -102,6 +111,7 @@ export const shadows = {
 
 export const theme = {
   colors,
+  gradients,
   spacing,
   borderRadius,
   typography,
@@ -110,3 +120,4 @@ export const theme = {
 
 export type Theme = typeof theme;
 export type Colors = typeof colors;
+export type Gradients = typeof gradients;
