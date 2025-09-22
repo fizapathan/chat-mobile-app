@@ -111,6 +111,8 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     borderRadius: 25,
+    borderWidth: 2,
+    borderColor: 'grey',
     justifyContent: 'center',
     alignItems: 'center',
     ...theme.shadows.lg,
