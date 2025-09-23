@@ -13,7 +13,11 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.fizaptn.ChatMobileApp",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -22,7 +26,8 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "softwareKeyboardLayoutMode": "pan"
+      "softwareKeyboardLayoutMode": "pan",
+      "package": "com.fiza_ptn.ChatMobileApp"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -31,11 +36,16 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#070926ff",
+          "backgroundColor": "#070926",
           "image": "./assets/splash-icon.png",
           "imageWidth": 200
         }
       ]
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "26c5e461-98ee-482b-ab35-6f5a3f6d640f"
+      }
+    }
   }
 }
