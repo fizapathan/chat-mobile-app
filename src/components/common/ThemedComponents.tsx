@@ -276,7 +276,7 @@ const styles = StyleSheet.create({
   } as ViewStyle,
   gradientBackgroundSmall: {
     paddingHorizontal: theme.spacing.md,
-    paddingVertical: theme.spacing.md,
+    paddingVertical: theme.spacing.sm,
   } as ViewStyle,
   gradientBackgroundMedium: {
     paddingHorizontal: theme.spacing.lg,

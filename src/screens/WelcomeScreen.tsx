@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
   Text,
   View,
@@ -7,8 +7,9 @@ import {
   Platform,
   StyleSheet,
   TouchableOpacity,
+  Keyboard,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
 import { RootStackParamList } from '../types/navigation';
@@ -38,9 +39,36 @@ const WelcomeScreen: React.FC<Props> = ({ navigation, route }) => {
   const { clearMessages } = useMessages();
   const { user } = useAuth();
 
+  const insets = useSafeAreaInsets();
+
+  // Keyboard handling state
+  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
+
   useEffect(() => {
     connect();
     return () => disconnect();
+  }, []);
+
+  // Keyboard listeners
+  useEffect(() => {
+    const keyboardWillShowListener = Keyboard.addListener(
+      Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow',
+      (event) => {
+        setIsKeyboardVisible(true);
+      }
+    );
+
+    const keyboardWillHideListener = Keyboard.addListener(
+      Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide',
+      (event) => {
+        setIsKeyboardVisible(false);
+      }
+    );
+
+    return () => {
+      keyboardWillShowListener.remove();
+      keyboardWillHideListener.remove();
+    };
   }, []);
 
   useEffect(() => {
@@ -48,19 +76,25 @@ const WelcomeScreen: React.FC<Props> = ({ navigation, route }) => {
       clearMessages();
       navigation.replace('Login');
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, user]);
 
   // useEffect(() => {
   //   if(isConnected && user) fetchUsers(user.id);
   // }, [isConnected]);
 
-  const handleLogout = () => logout();
+  const handleLogout = useCallback(() => {
+    logout();
+  }, [logout]);
+
+  const dismissKeyboard = useCallback(() => {
+    Keyboard.dismiss();
+  }, []);
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-          <Text style={styles.logoutButtonText}>{isLoading ? <ActivityIndicator animating={true} color="#fff" size={25} style={{ marginRight: 8 }} /> : '⏻'}</Text>
+          {isLoading ? <ActivityIndicator animating={true} color="#fff" size={25} style={{ marginRight: 8 }} /> : <Text style={styles.logoutButtonText}>🔌</Text>}
         </TouchableOpacity>
       </View>
       {isConnecting && (
@@ -69,8 +103,9 @@ const WelcomeScreen: React.FC<Props> = ({ navigation, route }) => {
         </View>
       )}
       <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={styles.content}
+        style={styles.container}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
       >
         <Chats />
         <MessageInput />

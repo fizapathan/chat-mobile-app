@@ -18,9 +18,9 @@ const Chats = () => {
   useEffect(() => {
     // console.log('Chats: Messages updated:', messages);
     if (isAtEnd && messages.length > 0) {
-      setTimeout(() => {
+      // setTimeout(() => {
         flatListRef.current?.scrollToEnd({ animated: true });
-      }, 100);
+      // }, 100);
     }
   }, [messages, isAtEnd]);
 

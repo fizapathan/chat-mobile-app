@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import {
   View,
   Alert,
@@ -29,17 +29,27 @@ const SignupScreen: React.FC<Props> = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const hasNavigated = useRef(false);
 
   const { isAuthenticated, signup, isLoading, error } = useAuth();
 
-  useEffect(() => {
-    if (isAuthenticated) {
+  const handleNavigation = useCallback(() => {
+    if (isAuthenticated && email.trim() && !hasNavigated.current) {
       console.log('User is authenticated, navigating to Welcome screen');
+      hasNavigated.current = true;
       navigation.replace('Welcome', { email: email.trim() });
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, navigation]);
 
-  const handleSignup = () => {
+  useEffect(() => {
+    handleNavigation();
+    
+    return () => {
+      hasNavigated.current = false;
+    };
+  }, [handleNavigation]);
+
+  const handleSignup = useCallback(() => {
     if (!email.trim() || !email.trim() || !password.trim()) { // || !confirmPassword.trim()
       Alert.alert('Error', 'Please fill in all fields');
       return;
@@ -66,11 +76,11 @@ const SignupScreen: React.FC<Props> = ({ navigation }) => {
       .catch((error) => {
         Alert.alert('Error', error.message);
       });;
-  };
+  }, [name, email, password, signup]);
 
-  const navigateToLogin = () => {
+  const navigateToLogin = useCallback(() => {
     navigation.replace('Login');
-  };
+  }, [navigation]);
 
   return (
     <SafeAreaView style={styles.container}>
